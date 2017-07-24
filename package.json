@@ -1,7 +1,7 @@
 {
-  "name": "wimpy",
+  "name": "simons",
   "version": "1.0.0",
-  "description": "A burgerweek app built with vue",
+  "description": "A battle of sequences",
   "author": "Mort <mort@instrument.com>",
   "private": true,
   "scripts": {

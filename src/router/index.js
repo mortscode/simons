@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Hello from '@/components/Hello';
-import BurgerList from '@/components/BurgerList';
+import Arena from '@/components/Arena';
 
 Vue.use(Router);
 
@@ -13,9 +13,9 @@ export default new Router({
       component: Hello,
     },
     {
-      path: '/burgers',
-      name: 'burgers',
-      component: BurgerList,
+      path: '/arena',
+      name: 'arena',
+      component: Arena,
     },
   ],
 });
