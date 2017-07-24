@@ -39,6 +39,9 @@ export default {
   data() {
     return ({
       burgerName: '',
+      pointsToWin: 3,
+      buttonTimeout: 3000,
+      //
       colors: ['b', 'y', 'r', 'g'],
       masterSequence: [],
       sequenceCount: 2,
@@ -48,12 +51,13 @@ export default {
       player2Points: 0,
       player1PointsRunning: 0,
       player2PointsRunning: 0,
-      pointsToWin: 3,
       player1Color: null,
       player2Color: null,
       gameStarted: false,
       player1Done: false,
       player2Done: false,
+      player1Timeout: null,
+      player2Timeout: null,
     });
   },
   mounted() {
@@ -68,7 +72,6 @@ export default {
   },
   methods: {
     createNewRound() {
-      // TODO: Timer
       // TODO: Display Sequence
       this.masterSequence = this.generateSequence();
       window.console.log(this.masterSequence);
@@ -115,6 +118,8 @@ export default {
       this.player2Points = 0;
       this.player1Done = false;
       this.player2Done = false;
+      clearTimeout(this.player1Timeout);
+      clearTimeout(this.player2Timeout);
 
       if (this.player1PointsRunning >= this.pointsToWin) {
         window.console.log('PLAYER 1 HAS WON THE GAME!');
@@ -158,12 +163,28 @@ export default {
         return;
       }
 
+      const playerNum = player === 'one' ? 1 : 2;
+      const otherPlayerNum = player === 'one' ? 2 : 1;
+
       if (buttons[0] === 0 && buttons[1] === 0 && buttons[2] === 0 && buttons[3] === 0) {
+        return;
+      } else if (this[`player${playerNum}Done`]) {
         return;
       }
 
-      const playerNum = player === 'one' ? 1 : 2;
-      const otherPlayerNum = player === 'one' ? 2 : 1;
+      clearTimeout(this[`player${playerNum}Timeout`]);
+      if (!this[`player${playerNum}Done`]) {
+        this[`player${playerNum}Timeout`] = setTimeout(() => {
+          if (!this[`player${playerNum}Done`]) {
+            window.console.log(`Player ${playerNum} wasn't fast enough...`);
+            this[`player${playerNum}Done`] = true;
+            this[`player${playerNum}Points`] = this.compareSequence(this[`sequenceP${playerNum}`]);
+            if (this[`player${otherPlayerNum}Done`]) {
+              this.roundFinished();
+            }
+          }
+        }, this.buttonTimeout);
+      }
 
       if (this[`sequenceP${playerNum}`].length < this.sequenceCount) {
         let buttonPushed;
