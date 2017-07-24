@@ -2,6 +2,7 @@
   <div class="button__wrapper">
     <div v-for="btn in this.seqButtons" class="button" v-bind:key="btn.id">
       <button class="button__inner"
+        :id="btn.id"
         :class="[{active: isActive === btn.color}, btn.color]"
         :data-clicked="btn.clicked"
         :data-color="btn.color"
@@ -56,6 +57,8 @@
       border-radius: 50%;
       flex: 0 0 90%;
       height: 90%;
+      opacity: 0.5;
+      transition: opacity 0.5s;
 
       &::before {
         content: "";
@@ -102,8 +105,12 @@
         }
       }
 
+      &.active {
+        opacity: 1;
+      }
+
       &.active::before {
-        animation: activeButton 300ms;
+        animation: activeButton 500ms;
       }
     }
   }

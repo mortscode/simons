@@ -1,44 +1,23 @@
 <template>
-  <div class="hello">
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://gitter.im/vuejs/vue" target="_blank">Gitter Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
-    <div class="link">
-      <router-link to="/burgers">Checkout the burger list.</router-link>
-    </div>
-    <form>
-      <br>
-      <br>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label is-upgraded is-dirty">
-        <input id="burgerName" v-model="burgerName" type="text" />
-        <label for="burgerName">Burger Name</label>
-      </div>
-      <div class="actions">
-        <button @click.prevent="postBurger">Post that burger</button>
-      </div>
-      <br>
-      <br>
-    </form>
+  <div class="arena">
+    <div id="Player1" class="player1"></div>
+    <div id="Player2" class="player2"></div>
+    <Simon />
   </div>
 </template>
 
 <script>
 import SocketIO from 'socket.io-client';
+import { TimelineLite } from 'gsap';
+import Simon from './Simon/Simon';
 
 export default {
   name: 'hello',
+  components: {
+    Simon,
+  },
   data() {
     return ({
-      burgerName: '',
       pointsToWin: 3,
       buttonTimeout: 3000,
       //
@@ -71,10 +50,41 @@ export default {
     });
   },
   methods: {
+    playSequene() {
+      const blueButton = document.getElementById('blueButton');
+      const yellowButton = document.getElementById('yellowButton');
+      const redButton = document.getElementById('redButton');
+      const greenButton = document.getElementById('greenButton');
+
+      const tl = new TimelineLite();
+
+      for (let i = 0; i < this.masterSequence.length; i += 1) {
+        const color = this.masterSequence[i];
+        window.console.log('color', color);
+        let buttonTarget;
+        if (color === 'b') {
+          buttonTarget = blueButton;
+        } else if (color === 'y') {
+          buttonTarget = yellowButton;
+        } else if (color === 'r') {
+          buttonTarget = redButton;
+        } else if (color === 'g') {
+          buttonTarget = greenButton;
+        }
+        tl.from(buttonTarget, 0.8, {
+          delay: 0.1,
+          onStart: () => {
+            buttonTarget.classList.add('active');
+          },
+          onComplete: () => {
+            buttonTarget.classList.remove('active');
+          },
+        });
+      }
+    },
     createNewRound() {
-      // TODO: Display Sequence
       this.masterSequence = this.generateSequence();
-      window.console.log(this.masterSequence);
+      setTimeout(this.playSequene, 1000);
     },
     generateSequence() {
       const sequence = [];
@@ -137,6 +147,7 @@ export default {
               if (this.player2Color !== this.colors[j]) {
                 this.player1Color = this.colors[j];
                 window.console.log('player 1 color', this.player1Color);
+                document.getElementById('Player1').classList.add(this.player1Color);
               } else {
                 window.console.log('player 1 select different color');
               }
@@ -148,6 +159,7 @@ export default {
               if (this.player1Color !== this.colors[j]) {
                 this.player2Color = this.colors[j];
                 window.console.log('player 2 color', this.player2Color);
+                document.getElementById('Player2').classList.add(this.player2Color);
               } else {
                 window.console.log('player 2 select different color');
               }
@@ -214,29 +226,50 @@ export default {
         }
       }
     },
-    postBurger() { },
   },
 };
 </script>
 
-<style scoped>
-  .hello {
-    padding: 0 24px;
-  }
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  li {
-    display: inline-block;
-    margin-right: 10px;
+<style scoped lang="scss">
+  .arena {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
   }
 
-  a {
-    color: tomato;
+  .player1 {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-color: white;
   }
-  .link {
-    margin-top: 60px;
+
+  .player2 {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(70% 0%, 100% 0%, 100% 100%, 70% 100%, 50% 50%);
+    z-index: 2;
+    background-color: white;
+  }
+
+  .b {
+    background-color: $blue;
+  }
+
+  .y {
+    background-color: $yellow;
+  }
+
+  .r {
+    background-color: $red;
+  }
+
+  .g {
+    background-color: $green;
   }
 </style>

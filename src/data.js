@@ -1,25 +1,25 @@
 export default {
   seqButtons: [
     {
-      id: 1,
+      id: 'blueButton',
       active: false,
       name: 'button-1',
       color: 'blue',
     },
     {
-      id: 2,
+      id: 'yellowButton',
       active: false,
       name: 'button-2',
       color: 'yellow',
     },
     {
-      id: 3,
+      id: 'redButton',
       active: false,
       name: 'button-3',
       color: 'red',
     },
     {
-      id: 4,
+      id: 'greenButton',
       active: false,
       name: 'button-4',
       color: 'green',
