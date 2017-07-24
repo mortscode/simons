@@ -46,6 +46,14 @@ export default {
       sequenceP2: [],
       player1Points: 0,
       player2Points: 0,
+      player1PointsRunning: 0,
+      player2PointsRunning: 0,
+      pointsToWin: 3,
+      player1Color: null,
+      player2Color: null,
+      gameStarted: false,
+      player1Done: false,
+      player2Done: false,
     });
   },
   mounted() {
@@ -57,9 +65,6 @@ export default {
         this.pushButtons(player, buttons);
       }
     });
-
-    // Before round starts, players select color for themself
-    this.createNewRound();
   },
   methods: {
     createNewRound() {
@@ -81,19 +86,10 @@ export default {
       return this.colors[Math.round(Math.random() * (this.colors.length - 1))];
     },
     compareSequence(playerSequence) {
-      const compareSequence = [];
-      for (let i = 0; i < this.sequenceCount; i += 1) {
-        for (let j = 0; j < 4; j += 1) {
-          if (playerSequence[i][j] === 1) {
-            compareSequence.push(this.colors[j]);
-          }
-        }
-      }
-
       let points = 0;
 
-      for (let i = 0; i < this.sequenceCount; i += 1) {
-        if (compareSequence[i] === this.masterSequence[i]) {
+      for (let i = 0; i < playerSequence.length; i += 1) {
+        if (this.masterSequence[i] === playerSequence[i]) {
           points += 1;
         }
       }
@@ -104,9 +100,10 @@ export default {
       window.console.log('roundFinished!!');
       if (this.player1Points > this.player2Points) {
         window.console.log('player 1 wins');
+        this.player1PointsRunning += this.player1Points - this.player2Points;
       } else if (this.player2Points > this.player1Points) {
         window.console.log('player 2 wins');
-        //TODO: Winning Player's Score minus Losers Score
+        this.player2PointsRunning += this.player2Points - this.player1Points;
       } else {
         window.console.log('tie');
       }
@@ -116,33 +113,82 @@ export default {
       this.sequenceP2 = [];
       this.player1Points = 0;
       this.player2Points = 0;
-      this.createNewRound();
-      // TODO: Overall points for players to know who won the game
+      this.player1Done = false;
+      this.player2Done = false;
+
+      if (this.player1PointsRunning >= this.pointsToWin) {
+        window.console.log('PLAYER 1 HAS WON THE GAME!');
+      } else if (this.player2PointsRunning >= this.pointsToWin) {
+        window.console.log('PLAYER 2 HAS WON THE GAME!');
+      } else {
+        this.createNewRound();
+      }
     },
     pushButtons(player, buttons) {
-      if (buttons[0] === 0 && buttons[1] === 0 && buttons[2] === 0 && buttons[3] === 0) {
-        return;
-      }
-      if (player === 'one') {
-        if (this.sequenceP1.length < this.sequenceCount) {
-          this.sequenceP1.push(buttons);
-          // TODO: This needs to stop the player if they hit the wrong button
-          if (this.sequenceCount === this.sequenceP1.length) {
-            this.player1Points = this.compareSequence(this.sequenceP1);
-            if (this.sequenceCount === this.sequenceP2.length) {
-              this.roundFinished();
+      if (!this.gameStarted) {
+        if (player === 'one') {
+          for (let j = 0; j < 4; j += 1) {
+            if (buttons[j] === 1) {
+              if (this.player2Color !== this.colors[j]) {
+                this.player1Color = this.colors[j];
+                window.console.log('player 1 color', this.player1Color);
+              } else {
+                window.console.log('player 1 select different color');
+              }
+            }
+          }
+        } else {
+          for (let j = 0; j < 4; j += 1) {
+            if (buttons[j] === 1) {
+              if (this.player1Color !== this.colors[j]) {
+                this.player2Color = this.colors[j];
+                window.console.log('player 2 color', this.player2Color);
+              } else {
+                window.console.log('player 2 select different color');
+              }
             }
           }
         }
-      } else if (player === 'two') {
-        if (this.sequenceP2.length < this.sequenceCount) {
-          this.sequenceP2.push(buttons);
-          // TODO: This needs to stop the player if they hit the wrong button
-          if (this.sequenceCount === this.sequenceP2.length) {
-            this.player2Points = this.compareSequence(this.sequenceP2);
-            if (this.sequenceCount === this.sequenceP1.length) {
-              this.roundFinished();
-            }
+
+        if (this.player1Color && this.player2Color) {
+          this.gameStarted = true;
+          this.createNewRound();
+        }
+
+        return;
+      }
+
+      if (buttons[0] === 0 && buttons[1] === 0 && buttons[2] === 0 && buttons[3] === 0) {
+        return;
+      }
+
+      const playerNum = player === 'one' ? 1 : 2;
+      const otherPlayerNum = player === 'one' ? 2 : 1;
+
+      if (this[`sequenceP${playerNum}`].length < this.sequenceCount) {
+        let buttonPushed;
+        for (let j = 0; j < 4; j += 1) {
+          if (buttons[j] === 1) {
+            buttonPushed = this.colors[j];
+            this[`sequenceP${playerNum}`].push(buttonPushed);
+          }
+        }
+
+        if (this.masterSequence[this[`sequenceP${playerNum}`].length - 1] !== buttonPushed) {
+          this[`player${playerNum}Done`] = true;
+          window.console.log(`player ${playerNum} fucked up...`);
+          this[`player${playerNum}Points`] = this.compareSequence(this[`sequenceP${playerNum}`]);
+          if (this[`player${otherPlayerNum}Done`]) {
+            this.roundFinished();
+          }
+        }
+
+        if (this.sequenceCount === this[`sequenceP${playerNum}`].length) {
+          this[`player${playerNum}Done`] = true;
+          window.console.log(`player ${playerNum} finished round`);
+          this[`player${playerNum}Points`] = this.compareSequence(this[`sequenceP${playerNum}`]);
+          if (this[`player${otherPlayerNum}Done`]) {
+            this.roundFinished();
           }
         }
       }
