@@ -39,6 +39,13 @@ export default {
   data() {
     return ({
       burgerName: '',
+      colors: ['b', 'y', 'r', 'g'],
+      masterSequence: [],
+      sequenceCount: 2,
+      sequenceP1: [],
+      sequenceP2: [],
+      player1Points: 0,
+      player2Points: 0,
     });
   },
   mounted() {
@@ -50,25 +57,97 @@ export default {
         this.pushButtons(player, buttons);
       }
     });
+
+    // Before round starts, players select color for themself
+    this.createNewRound();
   },
   methods: {
+    createNewRound() {
+      // TODO: Timer
+      // TODO: Display Sequence
+      this.masterSequence = this.generateSequence();
+      window.console.log(this.masterSequence);
+    },
+    generateSequence() {
+      const sequence = [];
+      for (let i = 0; i < this.sequenceCount; i += 1) {
+        sequence.push(this.getRandomColor());
+      }
+      this.sequenceP1 = [];
+      this.sequenceP2 = [];
+      return sequence;
+    },
+    getRandomColor() {
+      return this.colors[Math.round(Math.random() * (this.colors.length - 1))];
+    },
+    compareSequence(playerSequence) {
+      const compareSequence = [];
+      for (let i = 0; i < this.sequenceCount; i += 1) {
+        for (let j = 0; j < 4; j += 1) {
+          if (playerSequence[i][j] === 1) {
+            compareSequence.push(this.colors[j]);
+          }
+        }
+      }
+
+      let points = 0;
+
+      for (let i = 0; i < this.sequenceCount; i += 1) {
+        if (compareSequence[i] === this.masterSequence[i]) {
+          points += 1;
+        }
+      }
+
+      return points;
+    },
+    roundFinished() {
+      window.console.log('roundFinished!!');
+      if (this.player1Points > this.player2Points) {
+        window.console.log('player 1 wins');
+      } else if (this.player2Points > this.player1Points) {
+        window.console.log('player 2 wins');
+        //TODO: Winning Player's Score minus Losers Score
+      } else {
+        window.console.log('tie');
+      }
+
+      this.sequenceCount += 1;
+      this.sequenceP1 = [];
+      this.sequenceP2 = [];
+      this.player1Points = 0;
+      this.player2Points = 0;
+      this.createNewRound();
+      // TODO: Overall points for players to know who won the game
+    },
     pushButtons(player, buttons) {
-      window.console.log(`player ${player}`);
-      window.console.log(buttons);
+      if (buttons[0] === 0 && buttons[1] === 0 && buttons[2] === 0 && buttons[3] === 0) {
+        return;
+      }
+      if (player === 'one') {
+        if (this.sequenceP1.length < this.sequenceCount) {
+          this.sequenceP1.push(buttons);
+          // TODO: This needs to stop the player if they hit the wrong button
+          if (this.sequenceCount === this.sequenceP1.length) {
+            this.player1Points = this.compareSequence(this.sequenceP1);
+            if (this.sequenceCount === this.sequenceP2.length) {
+              this.roundFinished();
+            }
+          }
+        }
+      } else if (player === 'two') {
+        if (this.sequenceP2.length < this.sequenceCount) {
+          this.sequenceP2.push(buttons);
+          // TODO: This needs to stop the player if they hit the wrong button
+          if (this.sequenceCount === this.sequenceP2.length) {
+            this.player2Points = this.compareSequence(this.sequenceP2);
+            if (this.sequenceCount === this.sequenceP1.length) {
+              this.roundFinished();
+            }
+          }
+        }
+      }
     },
-    postBurger() {
-      this.$root.$firebaseRefs.burgers.push(
-        {
-          name: this.burgerName,
-          info: 'Posted by Mort',
-          created_at: -1 * new Date().getTime(),
-        })
-        .then(this.$router.push('/'))
-        .then(() => {
-          // eslint-disable-next-line no-console
-          console.table(this.$root.burgers);
-        });
-    },
+    postBurger() { },
   },
 };
 </script>
