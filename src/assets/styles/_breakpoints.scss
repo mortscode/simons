@@ -1,0 +1,15 @@
+//vars
+$breakpoint_xsmall: 420px; // small-mobile
+$breakpoint_small: 768px; // mobile
+$breakpoint_medium: 1024px; // tablet
+$breakpoint_large: 1400px; // desktop
+
+$xs: $breakpoint_xsmall;
+$sm: $breakpoint_small;
+$md: $breakpoint_medium;
+$lg: $breakpoint_large;
+
+// breakpoints
+@mixin bp($breaker, $feature: min-width) {
+  @media only screen and (#{$feature}: $breaker) { @content; }
+}
