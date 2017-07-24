@@ -1,24 +1,28 @@
 export default {
-  burgers: [
+  seqButtons: [
     {
       id: 1,
-      name: 'burger number 1',
+      active: false,
+      name: 'button-1',
+      color: 'blue',
     },
     {
       id: 2,
-      name: 'burger number 2',
+      active: false,
+      name: 'button-2',
+      color: 'yellow',
     },
     {
       id: 3,
-      name: 'burger number 3',
+      active: false,
+      name: 'button-3',
+      color: 'red',
     },
     {
       id: 4,
-      name: 'burger number 4',
-    },
-    {
-      id: 5,
-      name: 'burger number 5',
+      active: false,
+      name: 'button-4',
+      color: 'green',
     },
   ],
 };
