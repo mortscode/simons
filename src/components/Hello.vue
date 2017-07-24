@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import SocketIO from 'socket.io-client';
+
 export default {
   name: 'hello',
   data() {
@@ -39,7 +41,21 @@ export default {
       burgerName: '',
     });
   },
+  mounted() {
+    const socket = SocketIO('10.0.0.145:3000');
+    socket.on('buttonUpdate', (data) => {
+      if (data.id === 7 || data.id === 8) {
+        const buttons = [data.b0, data.b1, data.b2, data.b3];
+        const player = data.id === 7 ? 'one' : 'two';
+        this.pushButtons(player, buttons);
+      }
+    });
+  },
   methods: {
+    pushButtons(player, buttons) {
+      window.console.log(`player ${player}`);
+      window.console.log(buttons);
+    },
     postBurger() {
       this.$root.$firebaseRefs.burgers.push(
         {
