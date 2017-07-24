@@ -46,6 +46,9 @@ export default {
       sequenceP2: [],
       player1Points: 0,
       player2Points: 0,
+      player1PointsRunning: 0,
+      player2PointsRunning: 0,
+      pointsToWin: 3,
     });
   },
   mounted() {
@@ -104,9 +107,10 @@ export default {
       window.console.log('roundFinished!!');
       if (this.player1Points > this.player2Points) {
         window.console.log('player 1 wins');
+        this.player1PointsRunning += this.player1Points - this.player2Points;
       } else if (this.player2Points > this.player1Points) {
         window.console.log('player 2 wins');
-        //TODO: Winning Player's Score minus Losers Score
+        this.player2PointsRunning += this.player2Points - this.player1Points;
       } else {
         window.console.log('tie');
       }
@@ -117,7 +121,12 @@ export default {
       this.player1Points = 0;
       this.player2Points = 0;
       this.createNewRound();
-      // TODO: Overall points for players to know who won the game
+      if (this.player1PointsRunning >= this.pointsToWin) {
+        window.console.log('PLAYER 1 HAS WON THE GAME!');
+      } else if (this.player2PointsRunning >= this.pointsToWin) {
+        window.console.log('PLAYER 2 HAS WON THE GAME!');
+      }
+      // TODO: Reset the game
     },
     pushButtons(player, buttons) {
       if (buttons[0] === 0 && buttons[1] === 0 && buttons[2] === 0 && buttons[3] === 0) {
